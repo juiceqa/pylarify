@@ -1,0 +1,17 @@
+{
+  "name": "pylarify",
+  "version": "1.0.0",
+  "description": "looping zipcodes and scraping data",
+  "main": "cypress.config.ts",
+  "scripts": {
+    "test": "npm start"
+  },
+  "author": "juiceqa",
+  "license": "ISC",
+  "dependencies": {
+    "cypress": "10.4.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.7.4"
+  }
+}

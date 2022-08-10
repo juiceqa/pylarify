@@ -1,0 +1,9 @@
+{
+  "compilerOptions": {
+"baseUrl": "https://www.pylarify.com/site-locator",
+    "target": "es5",
+    "lib": ["es5", "dom"],
+    "types": ["cypress", "node"]
+  },
+  "include": ["**/*.ts"]
+}
