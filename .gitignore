@@ -1,1 +1,10 @@
 node_modules
+.DS_Store
+.env
+.vscode/settings.json
+.siteLocator.json
+cypress/result/
+output.txt
+output2.txt
+output.json
+output2.json
