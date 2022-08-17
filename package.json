@@ -1,17 +1,35 @@
 {
-  "name": "pylarify",
-  "version": "1.0.0",
-  "description": "looping zipcodes and scraping data",
-  "main": "cypress.config.ts",
-  "scripts": {
-    "test": "npm start"
-  },
-  "author": "juiceqa",
-  "license": "ISC",
-  "dependencies": {
-    "cypress": "10.4.0"
-  },
-  "devDependencies": {
-    "typescript": "^4.7.4"
-  }
+    "name": "pylarify",
+    "version": "1.0.0",
+    "description": "looping zipcodes and scraping data",
+    "main": "intercept.js",
+    "scripts": {
+        "test": "npm start"
+    },
+    "author": "juiceqa",
+    "license": "ISC",
+    "dependencies": {
+        "@googlemaps/google-maps-services-js": "^3.3.16",
+        "axios": "^0.27.2",
+        "axios-response-logger": "^0.1.0",
+        "chai": "^4.3.6",
+        "chrome-remote-interface": "^0.31.3",
+        "csv-stringify": "^6.0.5",
+        "csv-writer": "^1.6.0",
+        "csvdata": "^2.0.0",
+        "cypress": "10.4.0",
+        "cypress-iframe": "^1.0.1",
+        "iframe": "^1.0.0",
+        "jasmine": "^4.3.0",
+        "json-splitter": "^1.0.2",
+        "mocha": "^10.0.0",
+        "node-csv": "^0.1.2",
+        "ts-node": "^10.9.1"
+    },
+    "devDependencies": {
+        "cypress-mochawesome-reporter": "^3.2.2",
+        "cypress-terminal-report": "^4.1.2",
+        "node-geocoder": "^4.2.0",
+        "typescript": "^4.7.4"
+    }
 }

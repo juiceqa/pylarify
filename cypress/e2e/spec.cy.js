@@ -1,28 +1,79 @@
 // enables intelligent code completion for Cypress commands
 // https://on.cypress.io/intelligent-code-completion
+/* eslint-disable no-undef */
+/* eslint-disable semi */
 /// <reference types="cypress" />
+const testData = require("../fixtures/zipcodes.json")
+Cypress.on("uncaught:exception", (err, runnable) => {
+    // returning false here prevents Cypress from
+    // failing the test
+    return false;
 
-describe('Example Cypress TodoMVC test', () => {
-    ~~
+});
 
-    it('adds 2 todos', function() {
-        cy.fixture('example').as('example')
-        cy.get('@example').then((example) => {
+describe('Site Locator', () => {
+    const csvs = [];
+
+    testData.forEach((data) => {
+
+        it('prints locations', function() {
+            cy.log('data is:' + data)
             cy.request({
                 method: 'POST',
                 url: '/api/location/search',
-                body: example,
+                body: data,
                 failOnStatusCode: false,
                 headers: {
                     "accept": "application/json, text/javascript, */*; q=0.01",
-                    "content-type": "application/json; charset=UTF-8",
-                    "cookie": "_gcl_au=1.1.141273296.1659646726; _gid=GA1.2.1711352227.1660136473; cookie-policy=Fri%20Sep%2009%202022%2007:01:15%20GMT-0600%20(Mountain%20Daylight%20Time); _ga=GA1.2.2046703877.1659646726; _ga_DNCFS6ZVQ7=GS1.1.1660136473.3.1.1660136741.0; _gat_UA-175193909-2=1",
-                    "Referer": "https://www.pylarify.com/site-locator"
+                    "content-type": "application/json",
+                    "cookie": "_gcl_au=1.1.141273296.1659646726; _gid=GA1.2.1508085124.1660660404; _ga_DNCFS6ZVQ7=GS1.1.1660752923.8.0.1660752923.0.0.0; _ga=GA1.2.2046703877.1659646726; _gat_UA-175193909-2=1; cookie-policy=Fri%20Sep%2016%202022%2010:15:32%20GMT-0600%20(Mountain%20Daylight%20Time)",
+                    "Host": "www.pylarify.com",
+                    "Referer": "https://www.pylarify.com/site-locator",
+                    "sec-fetch-mode": "cors",
+                    "x-requested-with": "XMLHttpRequest"
                 },
-            }).should((response) => {
-                cy.log(JSON.stringify(response.headers))
-                cy.log(JSON.stringify(response.body))
+            }).its('body').each((responseBody) => {
+                const locationName = responseBody.locationName || null;
+                const centerType = responseBody.centerType || null;
+                const address1 = responseBody.address1 || null;
+                const address2 = responseBody.address2 || null;
+                const city = responseBody.city || null;
+                const state = responseBody.state || null;
+                const zip = responseBody.zip || null;
+                const phoneNumber = responseBody.phoneNumber || null;
+                const phoneExtension = responseBody.phoneExtension || null;
+                const websiteUrl = responseBody.websiteUrl || null;
+                const treatmentCenterId = responseBody.treatmentCenterId || null;
+                const latitude = responseBody.latitude || null;
+                const longitude = responseBody.longitude || null;
+                const createdDtTm = responseBody.createdDtTm || null;
+                const modifiedDtTm = responseBody.modifiedDtTm || null;
+
+
+                csvs.push({
+                    locationName: locationName,
+                    centerType: centerType,
+                    address1: address1,
+                    address2: address2,
+                    city: city,
+                    state: state,
+                    zip: zip,
+                    phoneNumber: phoneNumber,
+                    phoneExtension: phoneExtension,
+                    websiteUrl: websiteUrl,
+                    treatmentCenterId: treatmentCenterId,
+                    latitude: latitude,
+                    longitude: longitude,
+                    createdDtTm: createdDtTm,
+                    modifiedDtTm: modifiedDtTm
+                })
             })
-        })
+        });
+    })
+    it('writes csv file', function() {
+        cy.task(
+            "writeCsvFile", { filename: "siteLocator.csv", data: csvs },
+            csvs.join("\n")
+        );
     })
 })
