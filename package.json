@@ -26,7 +26,8 @@
         "json-splitter": "^1.0.2",
         "mocha": "^10.0.0",
         "node-csv": "^0.1.2",
-        "ts-node": "^10.9.1"
+        "ts-node": "^10.9.1",
+        "user-agents": "^1.0.1182"
     },
     "devDependencies": {
         "cypress-mochawesome-reporter": "^3.2.2",

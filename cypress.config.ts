@@ -1,10 +1,5 @@
 import { defineConfig } from "cypress";
 import webpackConfig from './webpack.config';
-import {
-  structuredData,
-  StructuredDataParam,
-  StructuredDataResult,
-} from "./structured-data-testing-tool";
 const fs = require('fs');
 const csvdata = require('csvdata');
 const { stringify } = require('csv-stringify/sync');
