@@ -8,3 +8,4 @@ output.txt
 output2.txt
 output.json
 output2.json
+cypress/fixtures/*.json
