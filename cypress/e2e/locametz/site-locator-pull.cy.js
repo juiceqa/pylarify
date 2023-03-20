@@ -80,7 +80,7 @@ describe("Site Locator", () => {
     })
     it("writes csv file", function() {
         cy.task(
-            "writeCsvFile", { filename: "locametz-site-locator.csv", data: csvs },
+            "writeCsvFile", { filename: "locametz-site-locator-2.csv", data: csvs },
             csvs.join("\n")
         )
     })

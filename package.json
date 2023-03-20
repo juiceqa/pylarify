@@ -27,9 +27,10 @@
         "mocha": "^10.0.0",
         "node-csv": "^0.1.2",
         "ts-node": "^10.9.1",
-        "user-agents": "^1.0.1182"
+        "user-agents": "^1.0.1324"
     },
     "devDependencies": {
+        "bluebird": "^3.7.2",
         "cypress-mochawesome-reporter": "^3.2.2",
         "cypress-terminal-report": "^4.1.2",
         "node-geocoder": "^4.2.0",

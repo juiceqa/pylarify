@@ -5,7 +5,7 @@
 /// <reference types="cypress" />
 import UserAgent from 'user-agents';
 const userAgent = new UserAgent();
-const testData = require("../../fixtures/set16.json")
+const testData = require("../../../fixtures/set16.json")
 Cypress.on("uncaught:exception", (err, runnable) => {
     // returning false here prevents Cypress from
     // failing the test
