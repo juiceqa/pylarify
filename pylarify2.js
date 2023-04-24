@@ -23,12 +23,10 @@ function removeDuplicates(rows) {
 
     return uniqueRows;
 }
-// Function to send API requests and collect results
-async function sendRequest(data) {
+// Function to send batch API requests and collect results
+async function sendBatchRequests(data) {
     try {
-        const response = await axios({
-            method: 'POST',
-            url: 'https://www.pylarify.com/api/location/search',
+        const response = await axios.post('https://www.pylarify.com/api/location/search', data, {
             headers: {
                 'Language': 'Language: en-US,en;q=0.$5$',
                 'User-Agent': userAgent.toString(),
@@ -45,29 +43,28 @@ async function sendRequest(data) {
         });
 
         const responseBody = response.data;
-        //        console.log('Response:', responseBody);
+        //    console.log('Response:', responseBody);
 
-
-        return [
-            responseBody.locationName || null,
-            responseBody.centerType || null,
-            responseBody.address1 || null,
-            responseBody.address2 || null,
-            responseBody.city || null,
-            responseBody.state || null,
-            responseBody.zip || null,
-            responseBody.phoneNumber || null,
-            responseBody.phoneExtension || null,
-            responseBody.websiteUrl || null,
-            responseBody.treatmentCenterId || null,
-            responseBody.latitude || null,
-            responseBody.longitude || null,
-            responseBody.createdDtTm || null,
-            responseBody.modifiedDtTm || null,
-        ];
+        return responseBody.map(result => ({
+            locationName: result.locationName || null,
+            centerType: result.centerType || null,
+            address1: result.address1 || null,
+            address2: result.address2 || null,
+            city: result.city || null,
+            state: result.state || null,
+            zip: result.zip || null,
+            phoneNumber: result.phoneNumber || null,
+            phoneExtension: result.phoneExtension || null,
+            websiteUrl: result.websiteUrl || null,
+            treatmentCenterId: result.treatmentCenterId || null,
+            latitude: result.latitude || null,
+            longitude: result.longitude || null,
+            createdDtTm: result.createdDtTm || null,
+            modifiedDtTm: result.modifiedDtTm || null,
+        }));
     } catch (error) {
         console.error("Request failed:", error);
-        throw error;
+        return [];
     }
 }
 
@@ -79,36 +76,33 @@ async function processJsonFile(index) {
     const startTime = new Date();
     console.log(`Processing file ${index}.json (started at ${startTime.toISOString()})...`);
 
-    for (const data of testData) {
-        const result = await sendRequest(data);
-        results.push([
-            result.locationName,
-            result.centerType,
-            result.address1,
-            result.address2,
-            result.city,
-            result.state,
-            result.zip,
-            result.phoneNumber,
-            result.phoneExtension,
-            result.websiteUrl,
-            result.treatmentCenterId,
-            result.latitude,
-            result.longitude,
-            result.createdDtTm,
-            result.modifiedDtTm,
-        ]);
+    const batchSize = 10;
+    const batches = [];
+
+    // Split the data into batches of size batchSize
+    for (let i = 0; i < testData.length; i += batchSize) {
+        batches.push(testData.slice(i, i + batchSize));
     }
 
-    const endTime = new Date();
+    // Send batch requests and collect results
+    for (const batch of batches) {
+        const batchResults = await sendBatchRequests(batch);
+        results.push(...batchResults);
+    }
+
+    const endTime = Date();
+
+    // Calculate and log the total time taken to process the file
     const timeTaken = (endTime - startTime) / 1000;
-    console.log(`Finished processing file ${index}.json (took ${timeTaken.toFixed(2)} seconds).`);
+    console.log(`Finished processing file ${index}.json(took ${timeTaken.toFixed(2)}
+        seconds).`);
+
     return results;
 }
 
 (async() => {
     const overallStartTime = new Date();
-    console.log(`Overall process started at ${overallStartTime.toISOString()}`);
+    console.log(`Overall process started at ${ overallStartTime.toISOString() }`);
 
     const csvs = [];
 
@@ -116,20 +110,19 @@ async function processJsonFile(index) {
     for (let i = 1; i <= 16; i++) {
         const results = await processJsonFile(i);
         csvs.push(...results);
-
         const progress = Math.round((i / 16) * 100);
         console.log(`Progress: ${progress}%`);
+
     }
 
     const overallEndTime = new Date();
     const overallTimeTaken = (overallEndTime - overallStartTime) / 1000;
-    console.log(`Overall process finished (took ${overallTimeTaken.toFixed(2)} seconds).`);
+    console.log(`Overall process finished (took ${overallTimeTaken.toFixed(2)} seconds).)`);
 
-    const uniqueCsvs = removeDuplicates(csvs);
-
-    const csvHeader = 'locationName,centerType,address1,address2,city,state,zip,phoneNumber,phoneExtension,websiteUrl,treatmentCenterId,latitude,longitude,createdDtTm,modifiedDtTm';
-    const csvData = [csvHeader, ...uniqueCsvs.map(result => result.join(','))].join('\n');
+    // Convert the results into CSV format
+    const csvData = csvs.map(result => Object.values(result).join(',')).join('\n');
     console.log('CSV Data:', csvData);
 
+    // Write the CSV data to a file
     fs.writeFileSync('siteLocator.csv', csvData);
 })();
