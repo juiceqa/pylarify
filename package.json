@@ -10,12 +10,13 @@
     "license": "ISC",
     "dependencies": {
         "@googlemaps/google-maps-services-js": "^3.3.16",
+        "async": "^3.2.4",
         "axios": "^0.27.2",
         "axios-response-logger": "^0.1.0",
         "chai": "^4.3.6",
         "chrome-remote-interface": "^0.31.3",
         "convert-csv-to-json": "^1.3.3",
-        "csv-stringify": "^6.0.5",
+        "csv-stringify": "^6.3.2",
         "csv-writer": "^1.6.0",
         "csvdata": "^2.0.0",
         "cypress": "10.4.0",
@@ -28,6 +29,9 @@
         "node-csv": "^0.1.2",
         "ts-node": "^10.9.1",
         "user-agents": "^1.0.1359"
+    },
+    "exports": {
+        "fixtures": "./fixtures"
     },
     "devDependencies": {
         "bluebird": "^3.7.2",

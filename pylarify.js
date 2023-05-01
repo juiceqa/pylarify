@@ -1,135 +1,87 @@
-// Import the required libraries
+const { promisify } = require('util');
 const UserAgent = require('user-agents');
 const axios = require('axios');
 const fs = require('fs');
 const userAgent = new UserAgent();
-
-// Function to import JSON files
-function importJsonFile(index) {
-    return require(`./fixtures/${index}.json`);
+const stringify = require('csv-stringify');
+var polygon = {
+    "type": "Polygon",
+    "coordinates": [
+        [
+            [-125.0, 24.0],
+            [-66.9, 24.0],
+            [-66.9, 49.0],
+            [-125.0, 49.0],
+            [-125.0, 24.0]
+        ]
+    ]
 }
-
-function removeDuplicates(rows) {
-    const uniqueRows = [];
-    const ids = new Set();
-
-    for (const row of rows) {
-        const treatmentCenterId = row[10]; // Changed from row.treatmentCenterId
-        if (!ids.has(treatmentCenterId)) {
-            uniqueRows.push(row);
-            ids.add(treatmentCenterId);
-        }
-    }
-
-    return uniqueRows;
-}
-// Function to send API requests and collect results
-async function sendRequest(data) {
-    try {
-        const response = await axios({
-            method: 'POST',
-            url: 'https://www.pylarify.com/api/location/search',
-            headers: {
-                'Language': 'Language: en-US,en;q=0.$5$',
-                'User-Agent': userAgent.toString(),
-                'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,/;q=0.8',
-                'Accept-Encoding': 'gzip, deflate',
-                'Content-Type': 'application/json',
-                'cookie': '_gcl_au=1.1.1539027924.1666903935; _fbp=fb.1.1666903934945.437512069; _ga_DNCFS6ZVQ7=GS1.1.1667005436.3.0.1667005436.0.0.0; _ga=GA1.2.1253772167.1666903935; _gid=GA1.2.618103297.1667005437; _gat_UA-175193909-2=1',
-                'Origin': 'https://www.pylarify.com',
-                'Connection': 'close',
-                'Referer': 'https://www.pylarify.com/site-locator',
-                'X-Forwarded-For': '127.0.0.1'
-            },
-            data: data,
+const appendFileAsync = (file, data) => {
+    return new Promise((resolve, reject) => {
+        fs.appendFile(file, data, (err) => {
+            if (err) reject(err);
+            resolve();
         });
+    });
+};
 
-        const responseBody = response.data;
-        //        console.log('Response:', responseBody);
-
-
-        return [
-            responseBody.locationName || null,
-            responseBody.centerType || null,
-            responseBody.address1 || null,
-            responseBody.address2 || null,
-            responseBody.city || null,
-            responseBody.state || null,
-            responseBody.zip || null,
-            responseBody.phoneNumber || null,
-            responseBody.phoneExtension || null,
-            responseBody.websiteUrl || null,
-            responseBody.treatmentCenterId || null,
-            responseBody.latitude || null,
-            responseBody.longitude || null,
-            responseBody.createdDtTm || null,
-            responseBody.modifiedDtTm || null,
-        ];
-    } catch (error) {
-        console.error("Request failed:", error);
-        throw error;
-    }
-}
-
-// Function to execute the main logic
 async function processJsonFile(index) {
-    const testData = importJsonFile(index);
-    const results = [];
-
+    const data = require('cypress/fixtures/${index}.json'); // add this line
+    console.log(`Processing file ${index}.json...`);
     const startTime = new Date();
-    console.log(`Processing file ${index}.json (started at ${startTime.toISOString()})...`);
 
-    for (const data of testData) {
-        const result = await sendRequest(data);
-        results.push([
-            result.locationName,
-            result.centerType,
-            result.address1,
-            result.address2,
-            result.city,
-            result.state,
-            result.zip,
-            result.phoneNumber,
-            result.phoneExtension,
-            result.websiteUrl,
-            result.treatmentCenterId,
-            result.latitude,
-            result.longitude,
-            result.createdDtTm,
-            result.modifiedDtTm,
-        ]);
-    }
+    const csvs = []; // move this here so that a new array is created for each JSON file
+    const results = await Promise.all(
+        data.map(async(row) => {
+            const request = {
+                requestBody: {
+                    searchOptions: {
+                        searchTerm: row.searchTerm,
+                        maxResults: 500, // change this value to 500
+                        location: polygon,
+                    },
+                },
+            };
+            const response = await axios.post("https://www.pylarify.com/api/location/search", request); // add axios.post()
+            csvs.push(response.data);
+        }) // remove this line
+    );
 
     const endTime = new Date();
     const timeTaken = (endTime - startTime) / 1000;
-    console.log(`Finished processing file ${index}.json (took ${timeTaken.toFixed(2)} seconds).`);
-    return results;
-}
+    console.log(`Finished processing file ${index}.json (took <span class="math-inline">\{timeTaken\.toFixed\(2\)\} seconds\)\.\`\);
+// create the csv file for this index
+const csvString \= stringify\(csvs\[index\]\);;
+const csvFilename \= \`results\-</span>{index}.csv`)
 
-(async() => {
-    const overallStartTime = new Date();
-    console.log(`Overall process started at ${overallStartTime.toISOString()}`);
-
-    const csvs = [];
-
-    // Run processJsonFile for all the JSON files (1-16)
-    for (let i = 1; i <= 16; i++) {
-        const results = await processJsonFile(i);
-        csvs.push(...results);
-
-        const progress = Math.round((i / 16) * 100);
-        console.log(`Progress: ${progress}%`);
+    try {
+        // append the csv to the file
+        await appendFileAsync(csvFilename, csvString);
+        console.log(`Results for file ${index}.json appended to ${csvFilename}.`);
+    } catch (error) {
+        console.error(`Failed to append results for file ${index}.json to ${csvFilename}:`, error);
     }
 
-    const overallEndTime = new Date();
-    const overallTimeTaken = (overallEndTime - overallStartTime) / 1000;
-    console.log(`Overall process finished (took ${overallTimeTaken.toFixed(2)} seconds).`);
+    return results.filter((result) => result.treatmentCenterId !== null && result.treatmentCenterId !== '');
+}
 
-    const uniqueCsvs = removeDuplicates(csvs);
+// Main function
+async function main() {
+    // Process each JSON file
+    const jsonFileCount = 10;
+    for (let i = 1; i <= jsonFileCount; i++) {
+        const results = await processJsonFile(i);
+    }
+    // concatenate all csv files
+    const finalCsvString = csvs.map((csv, index) => csv.slice(1).map(row => [index, ...row]).join('\n')).join('\n');
+    const finalCsvFilename = 'results-all.csv';
 
-    const csvHeader = 'locationName,centerType,address1,address2,city,state,zip,phoneNumber,phoneExtension,websiteUrl,treatmentCenterId,latitude,longitude,createdDtTm,modifiedDtTm';
-    const csvData = [csvHeader, ...uniqueCsvs.map(result => result.join(','))].join('\n');
-    console.log('CSV Data:', csvData);
+    try {
+        await appendFileAsync(finalCsvFilename, finalCsvString);
+        console.log(`All results appended to ${finalCsvFilename}.`);
 
-    fs.writeFileSync('siteLocator.csv', csvData);
-})();
+    } catch (error) {
+        console.error(`Failed to append all results to ${finalCsvFilename}:`, error);
+    }
+}
+main();
