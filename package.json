@@ -4,7 +4,8 @@
     "description": "looping zipcodes and scraping data",
     "main": "intercept.js",
     "scripts": {
-        "test": "npm start"
+        "test": "npm start",
+        "cy:run": "cypress run --spec 'cypress/e2e/pylarify/*cy.js"
     },
     "author": "juiceqa",
     "license": "ISC",

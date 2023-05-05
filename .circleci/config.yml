@@ -1,0 +1,11 @@
+version: 2.1
+jobs:
+  test:
+    docker:
+      - image: cypress/base
+    steps:
+      - checkout
+      - run: npm install
+      - run: npm run cy:run
+      - store_artifacts:
+          path: csvs

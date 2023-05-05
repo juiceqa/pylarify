@@ -1,6 +1,7 @@
 node_modules
 .DS_Store
-.env
+.env- store_artifacts:
+    path: path/to/csv/files
 .vscode/settings.json
 .siteLocator.json
 cypress/result/
