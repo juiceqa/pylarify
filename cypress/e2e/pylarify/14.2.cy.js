@@ -5,7 +5,7 @@
 /// <reference types="cypress" />
 import UserAgent from 'user-agents';
 const userAgent = new UserAgent();
-const testData = require("../../../fixtures/set16.json")
+const testData = require("../../../fixtures/14-2.json")
 Cypress.on("uncaught:exception", (err, runnable) => {
     // returning false here prevents Cypress from
     // failing the test
@@ -78,7 +78,7 @@ describe("Site Locator", () => {
     })
     it("writes csv file", function() {
         cy.task(
-            "writeCsvFile", { filename: "siteLocator16.csv", data: csvs },
+            "writeCsvFile", { filename: "siteLocator14-2.csv", data: csvs },
             csvs.join("\n")
         )
     })
